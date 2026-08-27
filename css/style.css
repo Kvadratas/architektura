@@ -1,0 +1,205 @@
+/* Custom Styles for ARCHITEKTŪRA Timber Optimizer */
+
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+body {
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+code, pre, .font-mono {
+  font-family: "JetBrains Mono", monospace;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #191512;
+}
+::-webkit-scrollbar-thumb {
+  background: #3d342d;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #c5824c;
+}
+
+/* Inputs styling */
+.input-base {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.input-base:focus {
+  box-shadow: 0 0 0 2px rgba(197, 130, 76, 0.25);
+}
+
+/* Wood Beam Visualization in UI */
+.timber-board-container {
+  background: #14110f;
+  border: 1px solid #332b25;
+  border-radius: 12px;
+  padding: 14px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+.timber-board-container:hover {
+  border-color: #57463a;
+}
+
+.timber-bar {
+  height: 48px;
+  background: #1e1916;
+  border-radius: 8px;
+  display: flex;
+  overflow: hidden;
+  border: 1px solid #3d342d;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+.timber-segment {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  border-right: 2px solid #ef4444; /* Kerf line */
+  transition: opacity 0.2s;
+  cursor: pointer;
+  user-select: none;
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 0 4px;
+}
+.timber-segment:hover {
+  filter: brightness(1.15);
+}
+
+.timber-segment-waste {
+  background: repeating-linear-gradient(
+    45deg,
+    #292524,
+    #292524 8px,
+    #1c1917 8px,
+    #1c1917 16px
+  );
+  color: #a8a29e;
+  border-right: none;
+}
+
+/* Palette of cut pieces */
+.cut-color-0 { background: linear-gradient(180deg, #d97706, #b45309); border-bottom: 2px solid #78350f; }
+.cut-color-1 { background: linear-gradient(180deg, #0284c7, #0369a1); border-bottom: 2px solid #075985; }
+.cut-color-2 { background: linear-gradient(180deg, #059669, #047857); border-bottom: 2px solid #064e3b; }
+.cut-color-3 { background: linear-gradient(180deg, #7c3aed, #6d28d9); border-bottom: 2px solid #4c1d95; }
+.cut-color-4 { background: linear-gradient(180deg, #db2777, #be185d); border-bottom: 2px solid #831843; }
+.cut-color-5 { background: linear-gradient(180deg, #ca8a04, #a16207); border-bottom: 2px solid #713f12; }
+.cut-color-6 { background: linear-gradient(180deg, #4f46e5, #4338ca); border-bottom: 2px solid #312e81; }
+.cut-color-7 { background: linear-gradient(180deg, #0d9488, #0f766e); border-bottom: 2px solid #134e4a; }
+
+/* Print Mode Optimization */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt;
+  }
+  header, footer, .lg\:col-span-5, #btn-run-optimization, .btn-secondary, button {
+    display: none !important;
+  }
+  main {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+  }
+  .lg\:col-span-7, #results-section {
+    display: block !important;
+    width: 100% !important;
+  }
+  .bg-\[\#1a1613\], .bg-\[\#12100e\], .bg-stone-900, .timber-board-container {
+    background: #ffffff !important;
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    color: #000000 !important;
+  }
+  .text-white, .text-stone-200, .text-stone-300, .text-stone-400 {
+    color: #111111 !important;
+  }
+  .timber-bar {
+    background: #f4f4f5 !important;
+    border: 1px solid #000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .timber-segment {
+    color: #000 !important;
+    text-shadow: none !important;
+    border-right: 1.5px solid #000 !important;
+    font-size: 9pt !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .cut-color-0, .cut-color-1, .cut-color-2, .cut-color-3, .cut-color-4, .cut-color-5, .cut-color-6, .cut-color-7 {
+    background: #e2e8f0 !important;
+    border-bottom: 1px solid #94a3b8 !important;
+  }
+  .timber-segment-waste {
+    background: #cbd5e1 !important;
+  }
+}
+
+/* Blueprint & Construction Schematics Styling */
+.blueprint-hotspot circle {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.blueprint-hotspot:hover circle:first-child {
+  fill-opacity: 0.5;
+  r: 18;
+}
+.blueprint-hotspot.active-hotspot circle:last-of-type {
+  stroke: #f59e0b;
+  stroke-width: 2.5px;
+  fill: #b45309;
+}
+
+#svg-blueprint-canvas svg {
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+}
+
+/* 3D WebGL Viewport & Camera Control Buttons */
+#three-canvas-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+  outline: none;
+}
+
+.btn-camera-view {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-camera-view:active {
+  transform: scale(0.95);
+}
+
+.btn-3d-model.active {
+  background: #c5824c !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(197, 130, 76, 0.4);
+}
+
+.active-step {
+  border-color: #f59e0b !important;
+  background: rgba(245, 158, 11, 0.15) !important;
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.25);
+}
+
+.border-stone-850 {
+  border-color: #211c18;
+}

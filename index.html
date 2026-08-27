@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="lt" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARCHITEKTŪRA | Medienos Pjovimo, Polių ir Karkaso Inžinerinė Sistema</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: "#fcf8f2",
+              100: "#f7eee1",
+              200: "#eedac2",
+              300: "#e2c09c",
+              400: "#d5a173",
+              500: "#c5824c",
+              600: "#b26839",
+              700: "#94512e",
+              800: "#7a422b",
+              900: "#643725",
+              950: "#391c13",
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Three.js & OrbitControls for 3D Viewport -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-[#12100e] text-stone-200 font-sans min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- TOP NAVIGATION HEADER -->
+  <header class="border-b border-stone-800 bg-[#191512]/90 backdrop-blur-md sticky top-0 z-40 px-4 lg:px-8 py-3.5 flex items-center justify-between shadow-2xl">
+    <div class="flex items-center space-x-3.5">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-amber-700 flex items-center justify-center shadow-lg shadow-brand-900/40 border border-brand-400/30">
+        <i data-lucide="shield-check" class="w-5 h-5 text-white"></i>
+      </div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <h1 class="text-lg font-extrabold tracking-wide text-white">ARCHITEKTŪRA</h1>
+          <span class="px-2 py-0.5 text-[10px] font-bold bg-brand-500/20 text-brand-400 border border-brand-500/30 rounded-full uppercase tracking-wider">EUROCODE 7 & 3D CAD MASTER</span>
+        </div>
+        <p class="text-xs text-stone-400">Polių pamatų geotechnika, svorio balansas, 3D surinkimo gidas ir nulinio nuostolio pjovimas</p>
+      </div>
+    </div>
+
+    <!-- Header Actions -->
+    <div class="flex flex-wrap items-center gap-2">
+      <button id="btn-export-ifc-top" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-sky-950/80 text-sky-300 border border-sky-600/40 hover:bg-sky-900/80 flex items-center space-x-1.5 transition-all shadow" title="OpenBIM IFC 4.0 failas (Revit, ArchiCAD, Tekla)">
+        <i data-lucide="box" class="w-4 h-4 text-sky-400"></i>
+        <span>BIM (IFC 4.0)</span>
+      </button>
+      <button id="btn-export-btlx-top" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-950/80 text-amber-300 border border-amber-600/40 hover:bg-amber-900/80 flex items-center space-x-1.5 transition-all shadow" title="Gamyklinis CNC kodas (Hundegger, Weinmann)">
+        <i data-lucide="cpu" class="w-4 h-4 text-amber-400"></i>
+        <span>CNC (BTLx)</span>
+      </button>
+      <button id="btn-save-project" class="btn-secondary px-3 py-1.5 text-xs rounded-lg flex items-center space-x-1.5 border border-stone-700 hover:border-brand-500/50 bg-stone-900/80 text-stone-300 transition-all">
+        <i data-lucide="save" class="w-4 h-4"></i>
+        <span class="hidden sm:inline">Išsaugoti</span>
+      </button>
+      <label class="btn-secondary px-3 py-1.5 text-xs rounded-lg flex items-center space-x-1.5 border border-stone-700 hover:border-brand-500/50 bg-stone-900/80 text-stone-300 transition-all cursor-pointer">
+        <i data-lucide="upload" class="w-4 h-4"></i>
+        <span class="hidden sm:inline">Įkelti</span>
+        <input type="file" id="input-load-project" accept=".json" class="hidden">
+      </label>
+      <button id="btn-print" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 flex items-center space-x-1.5 transition-all shadow">
+        <i data-lucide="printer" class="w-4 h-4 text-brand-400"></i>
+        <span class="hidden md:inline">Spausdinti Inžinerinį Lapą</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN WORKSPACE -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- FULL WIDTH: VISO NAMO STATYBŲ MASTER VEDLYS (12 cols) -->
+    <section id="full-house-master-section" class="lg:col-span-12 bg-gradient-to-br from-[#241c16] via-[#1a1613] to-[#120f0d] border-2 border-brand-500/50 rounded-3xl p-5 sm:p-7 shadow-2xl space-y-6">
+      
+      <!-- Wizard Header -->
+      <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-stone-800">
+        <div class="flex items-center space-x-3.5">
+          <div class="p-3 rounded-2xl bg-gradient-to-br from-brand-500 to-amber-600 text-white shadow-lg shadow-brand-950/80">
+            <i data-lucide="home" class="w-7 h-7"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <h2 class="text-xl font-extrabold text-white tracking-wide">Viso Namo Statybos Vedlys & Sąmata nuo A iki Z</h2>
+              <span class="px-2.5 py-0.5 rounded-full bg-brand-500/20 text-brand-300 text-xs font-mono font-bold border border-brand-500/30">Viskas Įskaičiuota</span>
+            </div>
+            <p class="text-xs text-stone-300 mt-0.5">Įveskite norimus parametrus – sistema akimirksniu sugeneruos kambarių planą, pamatus, medieną, skardą, WC, instaliacijas, pilną sąmatą ir 15 žingsnių statybų gidą!</p>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-2 bg-stone-950/80 px-3.5 py-2 rounded-xl border border-stone-800 text-xs font-mono">
+          <span class="text-stone-400">Orientacinė kaina:</span>
+          <span id="wizard-kpi-total-price" class="text-emerald-400 font-bold text-base">~0.00 €</span>
+          <span id="wizard-kpi-m2-price" class="text-stone-400 text-[11px]">(0 €/m²)</span>
+        </div>
+      </div>
+
+      <!-- Parameter Inputs Form Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+        
+        <!-- 1. Geometry & Size -->
+        <div class="p-3.5 rounded-2xl bg-stone-950/70 border border-stone-800/80 space-y-2.5">
+          <div class="font-bold text-stone-200 flex items-center space-x-1.5 pb-1 border-b border-stone-800">
+            <i data-lucide="ruler" class="w-3.5 h-3.5 text-brand-400"></i>
+            <span>1. Namo Dydis & Plotas</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-stone-400 mb-1">Ilgis (m):</label>
+              <input type="number" id="wiz-house-length" value="12.0" step="0.5" min="4" max="30" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2.5 py-1.5 text-stone-100 font-mono">
+            </div>
+            <div>
+              <label class="block text-stone-400 mb-1">Plotis (m):</label>
+              <input type="number" id="wiz-house-width" value="8.0" step="0.5" min="4" max="20" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2.5 py-1.5 text-stone-100 font-mono">
+            </div>
+          </div>
+          <div>
+            <label class="block text-stone-400 mb-1">Aukštų skaičius:</label>
+            <select id="wiz-house-storeys" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2 py-1.5 text-stone-100 font-mono">
+              <option value="1" selected>1 Aukštas (Standartas)</option>
+              <option value="2">2 Aukštai / Su mansarda</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 2. Rooms & WC -->
+        <div class="p-3.5 rounded-2xl bg-stone-950/70 border border-stone-800/80 space-y-2.5">
+          <div class="font-bold text-stone-200 flex items-center space-x-1.5 pb-1 border-b border-stone-800">
+            <i data-lucide="layout" class="w-3.5 h-3.5 text-amber-400"></i>
+            <span>2. Kambariai & WC</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-stone-400 mb-1">Miegamieji:</label>
+              <select id="wiz-bedrooms-count" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2 py-1.5 text-stone-100 font-mono">
+                <option value="1">1 Miegamasis</option>
+                <option value="2">2 Miegamieji</option>
+                <option value="3" selected>3 Miegamieji</option>
+                <option value="4">4 Miegamieji</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-stone-400 mb-1">WC / Vonios:</label>
+              <select id="wiz-bathrooms-count" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2 py-1.5 text-stone-100 font-mono">
+                <option value="1">1 Vonios kambarys</option>
+                <option value="2" selected>2 Vnt. (WC + Vonia)</option>
+                <option value="3">3 Vnt. (Liukso)</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2 pt-1 text-[11px] text-stone-300">
+            <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span>Svetainė su virtuve (Open Space)</span>
+          </div>
+        </div>
+
+        <!-- 3. Foundation & Roofing -->
+        <div class="p-3.5 rounded-2xl bg-stone-950/70 border border-stone-800/80 space-y-2.5">
+          <div class="font-bold text-stone-200 flex items-center space-x-1.5 pb-1 border-b border-stone-800">
+            <i data-lucide="layers" class="w-3.5 h-3.5 text-sky-400"></i>
+            <span>3. Pamatai & Stogo Danga</span>
+          </div>
+          <div>
+            <label class="block text-stone-400 mb-1">Pamatų tipas:</label>
+            <select id="wiz-foundation-type" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2 py-1.5 text-stone-100 font-mono">
+              <option value="piles" selected>Gręžtiniai Poliai + Rostverkas (EC7)</option>
+              <option value="piles_no_rostverk">Tik Poliai BE Rostverko (Pakeltas karkasas + Taškinis tinklas)</option>
+              <option value="slab">Švediška Plokštė (Izoliuota)</option>
+              <option value="strip">Juostiniai Pamatai</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-stone-400 mb-1">Stogo danga:</label>
+            <select id="wiz-roof-cladding" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2 py-1.5 text-stone-100 font-mono">
+              <option value="steel" selected>Plieninė skarda (Klasika RAL 7016)</option>
+              <option value="tile">Betoninės / Keraminės čerpės</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 4. Energy & Engineering -->
+        <div class="p-3.5 rounded-2xl bg-stone-950/70 border border-stone-800/80 space-y-2.5">
+          <div class="font-bold text-stone-200 flex items-center space-x-1.5 pb-1 border-b border-stone-800">
+            <i data-lucide="zap" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span>4. A++ Standartas & Inžinerija</span>
+          </div>
+          <div>
+            <label class="block text-stone-400 mb-1">Šiltinimas (Stogas/Sienos):</label>
+            <select id="wiz-insulation-thick" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2 py-1.5 text-stone-100 font-mono">
+              <option value="350" selected>A++ Vata (350 mm stogas / 250 mm siena)</option>
+              <option value="400">Pasyvus Namas (400 mm / 300 mm)</option>
+            </select>
+          </div>
+          <div class="text-[11px] text-emerald-400/90 pt-1 space-y-0.5">
+            <div>✓ A++ 3 stiklų langai ir lauko durys</div>
+            <div>✓ Grindinis šildymas, elektra, santechnika</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Action Button -->
+      <button id="btn-generate-full-house" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-amber-600 via-brand-600 to-amber-500 hover:from-amber-500 hover:to-brand-500 text-white font-extrabold text-sm sm:text-base flex items-center justify-center space-x-3 shadow-2xl shadow-brand-950/80 transition-all transform hover:scale-[1.01] active:scale-[0.99]">
+        <i data-lucide="sparkles" class="w-5 h-5 text-amber-200"></i>
+        <span>SUGENERUOTI VISO NAMO PLANĄ, SĄMATĄ IR 15 ŽINGSNIŲ STATYBŲ EIGĄ</span>
+      </button>
+
+      <!-- RESULTS CONTAINER (Rooms, Master 10-Category BOM & 15-Step Guide) -->
+      <div id="full-house-results-container" class="space-y-6 pt-2">
+        <!-- Injected dynamically by app.js / house_wizard.js -->
+      </div>
+
+    </section>
+
+    <!-- LEFT COLUMN: GEOTECHNICAL, FEA, ENERGY, SPLICING & PRESETS (5 cols) -->
+    <div class="lg:col-span-5 space-y-6">
+
+      <!-- 1. GEOTECHNICAL FOUNDATION & PILES SYSTEM -->
+      <section class="bg-[#1a1613] border border-stone-800/80 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-stone-800/80">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="anchor" class="w-4 h-4 text-brand-400"></i>
+            <h2 class="text-sm font-bold uppercase tracking-wider text-stone-200">Pamatų ir Polių Inžinerija</h2>
+          </div>
+          <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-mono font-bold">LST EN 1997-1</span>
+        </div>
+
+        <!-- Foundation Type Selector -->
+        <div class="space-y-1.5 text-xs">
+          <label class="block text-stone-400 font-medium">Pamatų konstrukcijos tipas:</label>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <button type="button" class="btn-foundation-type active p-2 rounded-xl border text-center transition-all bg-brand-500 text-white border-brand-400 font-semibold text-[11px]" data-ftype="piles">
+              Poliai + Rostverkas
+            </button>
+            <button type="button" class="btn-foundation-type p-2 rounded-xl border text-center transition-all bg-stone-900 text-stone-400 border-stone-800 hover:text-white font-semibold text-[11px]" data-ftype="piles_no_rostverk">
+              Tik Poliai (Be Rostverko)
+            </button>
+            <button type="button" class="btn-foundation-type p-2 rounded-xl border text-center transition-all bg-stone-900 text-stone-400 border-stone-800 hover:text-white font-semibold text-[11px]" data-ftype="slab">
+              Švediška Plokštė
+            </button>
+            <button type="button" class="btn-foundation-type p-2 rounded-xl border text-center transition-all bg-stone-900 text-stone-400 border-stone-800 hover:text-white font-semibold text-[11px]" data-ftype="strip">
+              Juostiniai
+            </button>
+          </div>
+        </div>
+
+        <!-- Geotechnical Soil Selector -->
+        <div class="grid grid-cols-2 gap-3 text-xs">
+          <div>
+            <label class="block text-stone-400 mb-1">Sklypo Grunto tipas:</label>
+            <select id="soil-type-select" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2.5 py-1.5 text-stone-100 font-mono text-[11px]">
+              <option value="sand_loam" selected>Priesmėlis / Smėlis (Standartas)</option>
+              <option value="gravel">Žvyras / Stambus smėlis (Tvirtas)</option>
+              <option value="clay">Priemolis / Plastinis molis (Vidutinis)</option>
+              <option value="soft_peat">Minkštas gruntas / Durpės (Silpnas)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-stone-400 mb-1">Stogo dangos svoris:</label>
+            <select id="roof-cladding-weight" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2.5 py-1.5 text-stone-100 font-mono text-[11px]">
+              <option value="steel" selected>Plieninė skarda (Lengva ~8 kg/m²)</option>
+              <option value="tile">Betoninės / Keraminės čerpės (Sunkios ~50 kg/m²)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- LIVE GEOTECHNICAL PILE REPORT CARD -->
+        <div id="geotech-live-summary" class="bg-[#110e0c] border border-stone-800/90 rounded-xl p-3.5 space-y-2.5 text-xs">
+          <!-- Populated by app.js via FoundationEngine -->
+        </div>
+      </section>
+
+      <!-- 2. REAL-TIME STRUCTURAL FEA MECHANICS (EUROCODE 5) -->
+      <section class="bg-[#1a1613] border border-stone-800/80 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-stone-800/80">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="flame" class="w-4 h-4 text-amber-400"></i>
+            <h2 class="text-sm font-bold uppercase tracking-wider text-stone-200">1. FEA Įtempimų & Įlinkio Analizė</h2>
+          </div>
+          <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-bold">EUROCODE 5</span>
+        </div>
+
+        <!-- FEA Parameters -->
+        <div class="grid grid-cols-2 gap-3 text-xs">
+          <div>
+            <label class="block text-stone-400 mb-1">Medienos stiprumo klasė:</label>
+            <select id="fea-timber-class" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2.5 py-1.5 text-stone-100 font-mono text-[11px]">
+              <option value="C24" selected>C24 Kalibruota (Standartas)</option>
+              <option value="C18">C18 Pjautinė mediena</option>
+              <option value="C30">C30 Rūšinė mediena</option>
+              <option value="GL24h">GL24h Glulam / Klijuota</option>
+              <option value="GL28h">GL28h Pramoninė klijuota</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-stone-400 mb-1">Sniego apkrova (Lietuvos zona):</label>
+            <select id="fea-snow-load" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2.5 py-1.5 text-stone-100 font-mono text-[11px]">
+              <option value="1.6" selected>1.6 kN/m² (II zona - Vilnius/Kaunas)</option>
+              <option value="1.2">1.2 kN/m² (I zona - Pajūris)</option>
+              <option value="2.0">2.0 kN/m² (III zona - Rytų Lietuva)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- LIVE FEA REPORT CARD -->
+        <div id="fea-live-summary" class="bg-[#110e0c] border border-stone-800/90 rounded-xl p-3.5 space-y-2.5 text-xs">
+          <!-- Populated by app.js via StructuralFEAEngine -->
+        </div>
+      </section>
+
+      <!-- 3. A++ ENERGY ENVELOPE & GLASER DEW POINT SIMULATOR -->
+      <section class="bg-[#1a1613] border border-stone-800/80 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-stone-800/80">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="thermometer-snowflake" class="w-4 h-4 text-cyan-400"></i>
+            <h2 class="text-sm font-bold uppercase tracking-wider text-stone-200">2. A++ Energinis & Rasos Taškas</h2>
+          </div>
+          <span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[10px] font-mono font-bold">STR 2.01.02:2016</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 text-xs">
+          <div>
+            <label class="block text-stone-400 mb-1">Šiltinimo medžiaga:</label>
+            <select id="energy-insulation-type" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2.5 py-1.5 text-stone-100 font-mono text-[11px]">
+              <option value="mineral_wool" selected>Mineralinė vata (λ=0.035)</option>
+              <option value="pir_board">PIR plokštė (λ=0.022)</option>
+              <option value="wood_fiber">Medžio plaušo vata (λ=0.038)</option>
+              <option value="eps_100">Neoporas EPS100 (λ=0.031)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-stone-400 mb-1">Stogo vatos storis (mm):</label>
+            <input type="number" id="energy-roof-thickness" value="350" step="25" min="150" max="500" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2.5 py-1.5 text-stone-100 font-mono">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs pt-1">
+          <label class="inline-flex items-center space-x-2 cursor-pointer">
+            <input type="checkbox" id="energy-vapor-barrier" checked class="rounded bg-stone-900 border-stone-700 text-brand-500">
+            <span class="text-stone-300">Garo izoliacinė plėvelė (Sd = 100m)</span>
+          </label>
+          <span class="text-stone-500 text-[11px] font-mono">-15°C / +21°C</span>
+        </div>
+
+        <!-- Live Energy Card & Glaser SVG Graph Container -->
+        <div id="energy-live-summary" class="bg-[#110e0c] border border-stone-800/90 rounded-xl p-3.5 space-y-3 text-xs">
+          <!-- Populated by app.js via EnergyEnvelopeEngine -->
+        </div>
+      </section>
+
+      <!-- 4. TIMBER SPLICING ENGINEERING (> 6.0m) -->
+      <section class="bg-[#1a1613] border border-stone-800/80 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-stone-800/80">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="scissors" class="w-4 h-4 text-amber-400"></i>
+            <h2 class="text-sm font-bold uppercase tracking-wider text-stone-200">4. Medienos Sudūrimas (> 6m)</h2>
+          </div>
+          <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-mono font-bold">M ≈ 0 INFLECTION</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 text-xs">
+          <div>
+            <label class="block text-stone-400 mb-1">Sudūrimo inžinerinė jungtis:</label>
+            <select id="splicing-joint-type" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2.5 py-1.5 text-stone-100 font-mono text-[11px]">
+              <option value="steel_plates" selected>Plieno plokštės + M12 (Standartas)</option>
+              <option value="scarf_joint">Inžinerinis suleidimas kampu (Scarf 1:4)</option>
+              <option value="timber_fishplate">Medinės šoninės antdėklės C24</option>
+            </select>
+          </div>
+
+          <div class="flex flex-col justify-end">
+            <button id="btn-apply-splicing-to-parts" class="w-full py-1.5 px-3 rounded-lg bg-amber-600/80 hover:bg-amber-500 text-white font-semibold text-[11px] flex items-center justify-center space-x-1 shadow transition-all">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+              <span>Pritaikyti sudūrimus pjovimui</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Splicing Card -->
+        <div id="splicing-live-summary" class="bg-[#110e0c] border border-stone-800/90 rounded-xl p-3.5 space-y-2.5 text-xs">
+          <!-- Populated by app.js via TimberSplicingEngine -->
+        </div>
+      </section>
+
+      <!-- 5. STRUCTURAL PRESET BUILDERS -->
+      <section class="bg-[#1a1613] border border-stone-800/80 rounded-2xl p-4 sm:p-5 shadow-xl">
+        <div class="flex items-center justify-between pb-3 border-b border-stone-800/80 mb-4">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="home" class="w-4 h-4 text-brand-400"></i>
+            <h2 class="text-sm font-bold uppercase tracking-wider text-stone-200">Karkaso ir Stogo Šablonai</h2>
+          </div>
+          <span class="text-[11px] text-brand-400 font-medium">Trigonometrija</span>
+        </div>
+
+        <!-- Presets Tab Buttons -->
+        <div class="grid grid-cols-4 gap-1.5 p-1 bg-stone-900/90 rounded-xl border border-stone-800 text-xs mb-4">
+          <button type="button" data-preset-tab="roof" class="preset-tab-btn active py-1.5 px-2 rounded-lg font-medium text-center transition-all bg-brand-500 text-white shadow">Stogas</button>
+          <button type="button" data-preset-tab="wall" class="preset-tab-btn py-1.5 px-2 rounded-lg font-medium text-center transition-all text-stone-400 hover:text-white">Sienos</button>
+          <button type="button" data-preset-tab="floor" class="preset-tab-btn py-1.5 px-2 rounded-lg font-medium text-center transition-all text-stone-400 hover:text-white">Perdanga</button>
+          <button type="button" data-preset-tab="deck" class="preset-tab-btn py-1.5 px-2 rounded-lg font-medium text-center transition-all text-stone-400 hover:text-white">Terasa</button>
+        </div>
+
+        <!-- PRESET: ROOF -->
+        <div id="preset-content-roof" class="preset-pane space-y-3 text-xs">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-stone-400 mb-1">Namo plotis / atstumas (m):</label>
+              <input type="number" id="roof-span" value="8.0" step="0.1" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2.5 py-1.5 text-stone-100 font-mono">
+            </div>
+            <div>
+              <label class="block text-stone-400 mb-1">Stogo nuolydis (laipsniais °):</label>
+              <input type="number" id="roof-pitch" value="30" step="1" min="5" max="75" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2.5 py-1.5 text-stone-100 font-mono">
+            </div>
+            <div>
+              <label class="block text-stone-400 mb-1">Karnizo iškyša (m):</label>
+              <input type="number" id="roof-overhang" value="0.6" step="0.05" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2.5 py-1.5 text-stone-100 font-mono">
+            </div>
+            <div>
+              <label class="block text-stone-400 mb-1">Namo ilgis (m):</label>
+              <input type="number" id="roof-length" value="12.0" step="0.1" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2.5 py-1.5 text-stone-100 font-mono">
+            </div>
+            <div>
+              <label class="block text-stone-400 mb-1">Gegnių žingsnis (m):</label>
+              <select id="roof-step" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2 py-1.5 text-stone-100 font-mono">
+                <option value="0.6" selected>0.60 m (Standartas)</option>
+                <option value="0.8">0.80 m</option>
+                <option value="0.9">0.90 m</option>
+                <option value="1.0">1.00 m</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-stone-400 mb-1">Gegnių skerspjūvis:</label>
+              <select id="roof-profile" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2 py-1.5 text-stone-100 font-mono">
+                <option value="50x200" selected>50 x 200 mm</option>
+                <option value="50x250">50 x 250 mm</option>
+                <option value="45x195">45 x 195 mm (C24)</option>
+                <option value="45x245">45 x 245 mm (C24)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex items-center space-x-2 pt-1">
+            <input type="checkbox" id="roof-include-ties" checked class="rounded bg-stone-900 border-stone-700 text-brand-500">
+            <label for="roof-include-ties" class="text-stone-300">Įtraukti stygas / suveržimus (50x150 mm)</label>
+          </div>
+          <div class="flex items-center space-x-2">
+            <input type="checkbox" id="roof-include-murlot" checked class="rounded bg-stone-900 border-stone-700 text-brand-500">
+            <label for="roof-include-murlot" class="text-stone-300">Įtraukti mūrlotus (100x150 mm)</label>
+          </div>
+
+          <button id="btn-apply-roof" class="w-full mt-2 py-2 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-amber-700 hover:from-brand-500 hover:to-amber-600 text-white font-semibold flex items-center justify-center space-x-2 shadow-lg transition-all">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>Generuoti ir įkelti Stogo elementus</span>
+          </button>
+        </div>
+
+        <!-- PRESET: WALL -->
+        <div id="preset-content-wall" class="preset-pane hidden space-y-3 text-xs">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-stone-400 mb-1">Bendras sienų ilgis (m):</label>
+              <input type="number" id="wall-total-len" value="40.0" step="0.5" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2.5 py-1.5 text-stone-100 font-mono">
+            </div>
+            <div>
+              <label class="block text-stone-400 mb-1">Sienos aukštis (m):</label>
+              <input type="number" id="wall-height" value="2.8" step="0.05" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2.5 py-1.5 text-stone-100 font-mono">
+            </div>
+            <div>
+              <label class="block text-stone-400 mb-1">Statramsčių žingsnis:</label>
+              <select id="wall-step" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2 py-1.5 text-stone-100 font-mono">
+                <option value="0.6" selected>0.60 m (Standartas vatai)</option>
+                <option value="0.4">0.40 m (Sustiprintas)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-stone-400 mb-1">Karkaso skerspjūvis:</label>
+              <select id="wall-profile" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2 py-1.5 text-stone-100 font-mono">
+                <option value="50x150" selected>50 x 150 mm</option>
+                <option value="45x145">45 x 145 mm (C24)</option>
+                <option value="50x200">50 x 200 mm</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2 pt-1">
+            <input type="checkbox" id="wall-double-top-plate" checked class="rounded bg-stone-900 border-stone-700 text-brand-500">
+            <label for="wall-double-top-plate" class="text-stone-300">Dvigubas viršutinis bėgis (Top Plate)</label>
+          </div>
+          <button id="btn-apply-wall" class="w-full mt-2 py-2 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-amber-700 hover:from-brand-500 hover:to-amber-600 text-white font-semibold flex items-center justify-center space-x-2 shadow-lg transition-all">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>Generuoti ir įkelti Sienų karkasą</span>
+          </button>
+        </div>
+
+        <!-- PRESET: FLOOR -->
+        <div id="preset-content-floor" class="preset-pane hidden space-y-3 text-xs">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-stone-400 mb-1">Perdangos tarpatramis (m):</label>
+              <input type="number" id="floor-span" value="4.5" step="0.1" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2.5 py-1.5 text-stone-100 font-mono">
+            </div>
+            <div>
+              <label class="block text-stone-400 mb-1">Perdangos plotis (m):</label>
+              <input type="number" id="floor-width" value="10.0" step="0.1" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2.5 py-1.5 text-stone-100 font-mono">
+            </div>
+          </div>
+          <button id="btn-apply-floor" class="w-full mt-2 py-2 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-amber-700 hover:from-brand-500 hover:to-amber-600 text-white font-semibold flex items-center justify-center space-x-2 shadow-lg transition-all">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>Generuoti ir įkelti Perdangos sijas</span>
+          </button>
+        </div>
+
+        <!-- PRESET: DECK -->
+        <div id="preset-content-deck" class="preset-pane hidden space-y-3 text-xs">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-stone-400 mb-1">Terasos ilgis (m):</label>
+              <input type="number" id="deck-len" value="6.0" step="0.1" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2.5 py-1.5 text-stone-100 font-mono">
+            </div>
+            <div>
+              <label class="block text-stone-400 mb-1">Terasos plotis (m):</label>
+              <input type="number" id="deck-width" value="4.0" step="0.1" class="input-base w-full bg-stone-900 border border-stone-700 rounded-lg px-2.5 py-1.5 text-stone-100 font-mono">
+            </div>
+          </div>
+          <button id="btn-apply-deck" class="w-full mt-2 py-2 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-amber-700 hover:from-brand-500 hover:to-amber-600 text-white font-semibold flex items-center justify-center space-x-2 shadow-lg transition-all">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>Generuoti ir įkelti Terasos karkasą</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 3. STOCK BOARD LENGTHS & CUTTINGS -->
+      <section class="bg-[#1a1613] border border-stone-800/80 rounded-2xl p-4 sm:p-5 shadow-xl">
+        <div class="flex items-center justify-between pb-3 border-b border-stone-800/80 mb-3">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="layers" class="w-4 h-4 text-brand-400"></i>
+            <h2 class="text-sm font-bold uppercase tracking-wider text-stone-200">Pirkimo Ilgiai (Stock)</h2>
+          </div>
+          <button id="btn-add-stock-length" class="text-xs text-brand-400 hover:text-brand-300 flex items-center space-x-1">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            <span>Pridėti ilgį</span>
+          </button>
+        </div>
+
+        <div id="stock-lengths-list" class="space-y-2">
+          <!-- Dynamic Stock Items -->
+        </div>
+      </section>
+
+    </div>
+
+
+    <!-- RIGHT COLUMN: REQUIRED CUT PARTS & EXECUTION (7 cols) -->
+    <div class="lg:col-span-7 space-y-6">
+
+      <!-- REQUIRED PARTS TABLE -->
+      <section class="bg-[#1a1613] border border-stone-800/80 rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col">
+        <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-stone-800/80 mb-4">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="list-checks" class="w-4 h-4 text-brand-400"></i>
+            <h2 class="text-sm font-bold uppercase tracking-wider text-stone-200">Reikalingų Detalių Sąrašas</h2>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button id="btn-clear-parts" class="px-2.5 py-1 text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 rounded-lg transition-all">
+              Išvalyti viską
+            </button>
+            <button id="btn-add-part" class="px-3 py-1 text-xs font-semibold bg-brand-500 hover:bg-brand-600 text-white rounded-lg flex items-center space-x-1 shadow transition-all">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              <span>Pridėti detalę</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="overflow-x-auto max-h-[360px] overflow-y-auto scrollbar-thin border border-stone-800 rounded-xl">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-stone-900/90 text-stone-400 uppercase text-[10px] tracking-wider sticky top-0 z-10 font-mono">
+              <tr>
+                <th class="p-2.5">Pavadinimas / Paskirtis</th>
+                <th class="p-2.5">Skerspjūvis</th>
+                <th class="p-2.5">Ilgis (mm)</th>
+                <th class="p-2.5">Kiekis</th>
+                <th class="p-2.5 text-center">Veiksmai</th>
+              </tr>
+            </thead>
+            <tbody id="parts-table-body" class="divide-y divide-stone-800 text-stone-200">
+              <!-- Dynamic rows -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Total pieces & volume preview -->
+        <div class="flex items-center justify-between text-xs text-stone-400 pt-3 mt-2 border-t border-stone-800/80">
+          <div>Iš viso detalių: <span id="summary-total-parts-count" class="font-bold text-white font-mono">0</span> vnt.</div>
+          <div>Grynasis tūris: <span id="summary-net-volume" class="font-bold text-brand-400 font-mono">0.000</span> m³</div>
+        </div>
+
+        <!-- OPTIMIZE ACTION BAR -->
+        <div class="mt-5 p-4 rounded-xl bg-gradient-to-r from-stone-900 via-stone-900 to-[#221c17] border border-stone-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="text-xs">
+            <span class="font-semibold text-stone-200 block">Algoritmo parinktis:</span>
+            <label class="inline-flex items-center space-x-1.5 mt-1 cursor-pointer">
+              <input type="radio" name="opt-algorithm" value="exact" checked class="text-brand-500">
+              <span class="text-stone-300">Exact Global Minimum (100% tikslus)</span>
+            </label>
+          </div>
+
+          <button id="btn-run-optimization" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-amber-600 to-brand-600 hover:from-amber-500 hover:to-brand-500 text-white font-extrabold text-sm flex items-center justify-center space-x-2 shadow-xl shadow-brand-950/60 transition-all transform hover:scale-[1.02] active:scale-[0.98]">
+            <i data-lucide="zap" class="w-5 h-5 text-amber-200 fill-amber-200"></i>
+            <span>APSKAIČIUOTI OPTIMALŲ PJOVIMĄ</span>
+          </button>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- FULL WIDTH: 3D CAD INTERACTIVE VIEWPORT (12 cols) -->
+    <section class="lg:col-span-12 space-y-4">
+      <div class="bg-[#1a1613] border border-stone-800 rounded-2xl p-4 sm:p-5 shadow-2xl space-y-4">
+        
+        <!-- 3D Viewport Header -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-stone-800">
+          <div class="flex items-center space-x-3">
+            <div class="p-2 rounded-xl bg-brand-500/20 text-brand-400 border border-brand-500/30">
+              <i data-lucide="box" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <div class="flex items-center space-x-2">
+                <h3 class="text-base font-bold text-white tracking-wide">3D Interaktyvi Konstrukcijos ir Polių Apžvalga</h3>
+                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-mono font-bold uppercase">WebGL 3D Engine</span>
+              </div>
+              <p class="text-xs text-stone-400">Apžiūrėkite polius, rostverką ir karkasą 360° kampu arba rinkitės ortografinę ašį</p>
+            </div>
+          </div>
+
+          <!-- Model Switcher Mode Buttons -->
+          <div class="flex items-center space-x-1.5 p-1 bg-stone-950 rounded-xl border border-stone-800 text-xs">
+            <button type="button" class="btn-3d-model active px-3 py-1.5 rounded-lg font-semibold bg-brand-500 text-white shadow" data-3d-model="roof">Stogas</button>
+            <button type="button" class="btn-3d-model px-3 py-1.5 rounded-lg font-semibold text-stone-400 hover:text-white" data-3d-model="wall">Sienos</button>
+            <button type="button" class="btn-3d-model px-3 py-1.5 rounded-lg font-semibold text-stone-400 hover:text-white" data-3d-model="floor">Perdanga</button>
+            <button type="button" class="btn-3d-model px-3 py-1.5 rounded-lg font-semibold text-stone-400 hover:text-white" data-3d-model="full_house">Pilnas Karkasas</button>
+          </div>
+        </div>
+
+        <!-- 3D VIEWPORT CANVAS WITH FLOATING CAMERA CONTROLS -->
+        <div class="relative w-full h-[480px] bg-[#0d0c0a] border border-stone-900 rounded-2xl overflow-hidden shadow-inner group">
+          
+          <div id="three-canvas-container" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+
+          <!-- FLOATING CAMERA VIEW ANGLE BUTTONS -->
+          <div class="absolute top-4 left-4 flex flex-wrap items-center gap-1.5 bg-stone-950/85 backdrop-blur-md p-1.5 rounded-xl border border-stone-800/80 shadow-2xl z-20">
+            <span class="text-[10px] uppercase font-mono font-bold text-stone-400 px-2 py-1">Kameros Kampas:</span>
+            
+            <button type="button" class="btn-camera-view px-2.5 py-1 text-xs rounded-lg font-mono font-bold bg-stone-800/90 text-stone-200 hover:bg-brand-500 hover:text-white transition-all" data-view="iso">
+              🧊 3D
+            </button>
+            <button type="button" class="btn-camera-view px-2.5 py-1 text-xs rounded-lg font-mono font-bold bg-stone-800/90 text-stone-200 hover:bg-brand-500 hover:text-white transition-all" data-view="front">
+              🔲 Priekis
+            </button>
+            <button type="button" class="btn-camera-view px-2.5 py-1 text-xs rounded-lg font-mono font-bold bg-stone-800/90 text-stone-200 hover:bg-brand-500 hover:text-white transition-all" data-view="back">
+              🔳 Galas
+            </button>
+            <button type="button" class="btn-camera-view px-2.5 py-1 text-xs rounded-lg font-mono font-bold bg-stone-800/90 text-stone-200 hover:bg-brand-500 hover:text-white transition-all" data-view="top">
+              ⬇️ Viršus
+            </button>
+            <button type="button" class="btn-camera-view px-2.5 py-1 text-xs rounded-lg font-mono font-bold bg-stone-800/90 text-stone-200 hover:bg-brand-500 hover:text-white transition-all" data-view="bottom">
+              ⬆️ Apačia (Poliai)
+            </button>
+            <button type="button" class="btn-camera-view px-2.5 py-1 text-xs rounded-lg font-mono font-bold bg-stone-800/90 text-stone-200 hover:bg-brand-500 hover:text-white transition-all" data-view="left">
+              ⬅️ Kairė
+            </button>
+            <button type="button" class="btn-camera-view px-2.5 py-1 text-xs rounded-lg font-mono font-bold bg-stone-800/90 text-stone-200 hover:bg-brand-500 hover:text-white transition-all" data-view="right">
+              ➡️ Dešinė
+            </button>
+          </div>
+
+          <!-- FLOATING TOOLS -->
+          <div class="absolute top-4 right-4 flex items-center space-x-2 bg-stone-950/85 backdrop-blur-md p-1.5 rounded-xl border border-stone-800/80 shadow-2xl z-20">
+            <button id="btn-toggle-fea" class="px-2.5 py-1 text-xs rounded-lg font-mono font-bold bg-amber-950/90 text-amber-300 hover:bg-amber-800 border border-amber-600/30 flex items-center space-x-1.5 transition-all shadow" title="Įjungti/išjungti FEA įtempimų ir įlinkio termoviziją 3D modelyje">
+              <i data-lucide="flame" class="w-3.5 h-3.5 text-amber-400"></i>
+              <span>FEA Įtempimai</span>
+            </button>
+            <button id="btn-toggle-splicing" class="px-2.5 py-1 text-xs rounded-lg font-mono font-bold bg-stone-800/90 text-stone-200 hover:bg-stone-700 flex items-center space-x-1.5 transition-all" title="Rodyti/slėpti medienos sudūrimo plokšteles 3D modelyje">
+              <i data-lucide="scissors" class="w-3.5 h-3.5 text-sky-400"></i>
+              <span>Sudūrimai 3D</span>
+            </button>
+            <button id="btn-toggle-wireframe" class="px-2.5 py-1 text-xs rounded-lg font-mono font-bold bg-stone-800/90 text-stone-200 hover:bg-stone-700 flex items-center space-x-1.5 transition-all">
+              <i data-lucide="grid" class="w-3.5 h-3.5 text-amber-400"></i>
+              <span>Rėmas</span>
+            </button>
+            <button id="btn-reset-3d-cam" class="px-2.5 py-1 text-xs rounded-lg font-mono font-bold bg-stone-800/90 text-stone-200 hover:bg-stone-700 flex items-center space-x-1.5 transition-all">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-brand-400"></i>
+              <span>Atstatyti</span>
+            </button>
+          </div>
+
+          <div class="absolute bottom-3 left-4 text-[11px] font-mono text-stone-400 bg-stone-950/75 backdrop-blur px-3 py-1 rounded-lg border border-stone-800/80 pointer-events-none">
+            🖱️ <b>Kairys:</b> Sukti 360° | <b>Dešinys:</b> Stumdyti | <b>Ratukas:</b> Priartinti/Nutolinti
+          </div>
+        </div>
+
+        <!-- 3D STEP-BY-STEP TUTORIAL CONTROLLER CONTAINER -->
+        <div id="tutorial-controls-container"></div>
+
+      </div>
+    </section>
+
+    <!-- FULL WIDTH: 2D ARCHITECTURAL BLUEPRINTS & ASSEMBLY NODES (12 cols) -->
+    <section id="assembly-blueprint-section" class="lg:col-span-12 space-y-6">
+      <div id="blueprint-container"></div>
+    </section>
+
+    <!-- FULL WIDTH: RESULTS & VISUAL CUTTING PLANS (12 cols) -->
+    <div id="results-section" class="lg:col-span-12 space-y-6 hidden">
+
+      <!-- KPI METRIC CARDS -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+        
+        <div class="kpi-card p-3.5 rounded-2xl bg-[#1a1613] border border-stone-800 shadow-lg">
+          <div class="text-stone-400 text-[11px] font-medium flex items-center space-x-1">
+            <i data-lucide="layers" class="w-3.5 h-3.5 text-brand-400"></i>
+            <span>Reikia Tašų</span>
+          </div>
+          <div class="text-xl font-extrabold text-white mt-1 font-mono" id="kpi-total-boards">0 <span class="text-xs font-normal text-stone-400">vnt.</span></div>
+          <div class="text-[10px] text-stone-400 mt-0.5" id="kpi-boards-breakdown">Standartiniai ruošiniai</div>
+        </div>
+
+        <div class="kpi-card p-3.5 rounded-2xl bg-[#1a1613] border border-stone-800 shadow-lg">
+          <div class="text-stone-400 text-[11px] font-medium flex items-center space-x-1">
+            <i data-lucide="box" class="w-3.5 h-3.5 text-blue-400"></i>
+            <span>Bendras Tūris</span>
+          </div>
+          <div class="text-xl font-extrabold text-white mt-1 font-mono" id="kpi-total-m3">0.000 <span class="text-xs font-normal text-stone-400">m³</span></div>
+          <div class="text-[10px] text-stone-400 mt-0.5">Užsakymo apimtis</div>
+        </div>
+
+        <div class="kpi-card p-3.5 rounded-2xl bg-[#1a1613] border border-stone-800 shadow-lg">
+          <div class="text-stone-400 text-[11px] font-medium flex items-center space-x-1">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span>Atraižos / Nuostolis</span>
+          </div>
+          <div class="text-xl font-extrabold text-emerald-400 mt-1 font-mono" id="kpi-waste-percent">0.0%</div>
+          <div class="text-[10px] text-stone-400 mt-0.5" id="kpi-waste-m3">0.000 m³ atraižų</div>
+        </div>
+
+        <div class="kpi-card p-3.5 rounded-2xl bg-[#1a1613] border border-stone-800 shadow-lg">
+          <div class="text-stone-400 text-[11px] font-medium flex items-center space-x-1">
+            <i data-lucide="activity" class="w-3.5 h-3.5 text-amber-400"></i>
+            <span>Bėginiai Metrai</span>
+          </div>
+          <div class="text-xl font-extrabold text-white mt-1 font-mono" id="kpi-total-length">0.0 <span class="text-xs font-normal text-stone-400">m</span></div>
+          <div class="text-[10px] text-stone-400 mt-0.5">Visų lentų suma</div>
+        </div>
+
+        <div class="kpi-card p-3.5 rounded-2xl bg-[#1a1613] border border-stone-800 shadow-lg">
+          <div class="text-stone-400 text-[11px] font-medium flex items-center space-x-1">
+            <i data-lucide="scale" class="w-3.5 h-3.5 text-purple-400"></i>
+            <span>Bendras Svoris</span>
+          </div>
+          <div class="text-xl font-extrabold text-white mt-1 font-mono" id="kpi-total-weight">0 <span class="text-xs font-normal text-stone-400">kg</span></div>
+          <div class="text-[10px] text-stone-400 mt-0.5">Medienos masė</div>
+        </div>
+
+        <div class="kpi-card p-3.5 rounded-2xl bg-[#1a1613] border border-brand-500/40 shadow-lg shadow-brand-950/50 bg-gradient-to-b from-[#221c17] to-[#1a1613]">
+          <div class="text-brand-300 text-[11px] font-medium flex items-center space-x-1">
+            <i data-lucide="euro" class="w-3.5 h-3.5 text-brand-400"></i>
+            <span>Medienos Sąmata</span>
+          </div>
+          <div class="text-xl font-extrabold text-brand-400 mt-1 font-mono" id="kpi-total-price">0.00 <span class="text-xs font-normal text-stone-400">€</span></div>
+          <div class="text-[10px] text-stone-400 mt-0.5">Pagal tarifą</div>
+        </div>
+
+      </div>
+
+      <!-- PURCHASE ORDER SUMMARY & DIRECT EXPORTS CARD -->
+      <section class="bg-[#1a1613] border border-stone-800/80 rounded-2xl p-5 shadow-xl">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-stone-800/80 mb-4">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="shopping-cart" class="w-4 h-4 text-brand-400"></i>
+            <h2 class="text-sm font-bold uppercase tracking-wider text-stone-200">Užsakymo Specifikacija & Gamybinis Eksportas</h2>
+          </div>
+          
+          <div class="flex flex-wrap items-center gap-2">
+            <button id="btn-export-ifc" class="px-3 py-1.5 text-xs bg-sky-950/80 text-sky-300 border border-sky-600/40 hover:bg-sky-900/80 rounded-lg flex items-center space-x-1.5 transition-all shadow">
+              <i data-lucide="box" class="w-3.5 h-3.5 text-sky-400"></i>
+              <span>BIM (IFC 4.0)</span>
+            </button>
+            <button id="btn-export-btlx" class="px-3 py-1.5 text-xs bg-amber-950/80 text-amber-300 border border-amber-600/40 hover:bg-amber-900/80 rounded-lg flex items-center space-x-1.5 transition-all shadow">
+              <i data-lucide="cpu" class="w-3.5 h-3.5 text-amber-400"></i>
+              <span>CNC (BTLx)</span>
+            </button>
+            <button id="btn-export-csv" class="px-3 py-1.5 text-xs bg-stone-900 hover:bg-stone-800 text-stone-200 border border-stone-700 rounded-lg flex items-center space-x-1.5 transition-all">
+              <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-emerald-400"></i>
+              <span>Eksportuoti CSV</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-stone-900/80 text-stone-400 uppercase text-[10px] tracking-wider font-mono">
+              <tr>
+                <th class="p-2.5">Skerspjūvis</th>
+                <th class="p-2.5">Ruošinio Ilgis</th>
+                <th class="p-2.5">Kiekis (vnt)</th>
+                <th class="p-2.5">Bėginiai metrai (m)</th>
+                <th class="p-2.5">Tūris (m³)</th>
+                <th class="p-2.5">Svoris (kg)</th>
+                <th class="p-2.5 text-right">Kaina (€)</th>
+              </tr>
+            </thead>
+            <tbody id="purchase-order-tbody" class="divide-y divide-stone-800/80 text-stone-200">
+              <!-- Injected by visualizer.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- VISUAL CUTTING DIAGRAMS -->
+      <section class="bg-[#1a1613] border border-stone-800/80 rounded-2xl p-5 shadow-xl space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-stone-800/80">
+          <div>
+            <div class="flex items-center space-x-2">
+              <i data-lucide="layout-grid" class="w-4 h-4 text-brand-400"></i>
+              <h2 class="text-sm font-bold uppercase tracking-wider text-stone-200">Interaktyvūs Pjovimo Žemėlapiai</h2>
+            </div>
+            <p class="text-xs text-stone-400 mt-0.5">Kiekvienos lentos vizualizacija su tiksliomis pjovimo linijomis, detalėmis ir likučiais</p>
+          </div>
+
+          <div class="flex items-center space-x-4 text-xs">
+            <div class="flex items-center space-x-1.5">
+              <span class="w-3 h-3 rounded bg-amber-600 border border-amber-400/40 inline-block"></span>
+              <span class="text-stone-300">Naudojama detalė</span>
+            </div>
+            <div class="flex items-center space-x-1.5">
+              <span class="w-3 h-3 rounded bg-stone-700/80 border border-stone-600 inline-block"></span>
+              <span class="text-stone-400">Atraiža / Likutis</span>
+            </div>
+            <div class="flex items-center space-x-1.5">
+              <span class="w-3 h-3 rounded bg-red-500/80 border border-red-400 inline-block"></span>
+              <span class="text-stone-400">Pjūklas (Kerf)</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="cutting-layouts-container" class="space-y-8"></div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-stone-800/80 bg-[#16120f] py-4 px-4 text-center text-xs text-stone-500 mt-auto">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+      <p>ARCHITEKTŪRA &copy; 2026. Eurokodas 5 / 7 & A++ Medienos Optimizavimo Sistema.</p>
+      <p class="text-[11px] text-stone-400">FEA Įtempimų Termovizija &bull; A++ Glaser Drėgmė &bull; Medienos Sudūrimai &bull; CNC (BTLx) & BIM (IFC4)</p>
+    </div>
+  </footer>
+
+  <!-- SCRIPTS -->
+  <script src="js/foundation.js"></script>
+  <script src="js/fea.js"></script>
+  <script src="js/energy.js"></script>
+  <script src="js/splicing.js"></script>
+  <script src="js/bim_cnc.js"></script>
+  <script src="js/house_wizard.js"></script>
+  <script src="js/presets.js"></script>
+  <script src="js/optimizer.js"></script>
+  <script src="js/visualizer.js"></script>
+  <script src="js/assembler.js"></script>
+  <script src="js/viewer3d.js"></script>
+  <script src="js/tutorial.js"></script>
+  <script src="js/exporter.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    });
+  </script>
+</body>
+</html>
