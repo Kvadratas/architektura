@@ -1,6 +1,6 @@
 /* Custom Styles for ARCHITEKTŪRA Timber Optimizer */
 
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap");
 
 body {
   font-family: "Plus Jakarta Sans", sans-serif;
@@ -104,55 +104,107 @@ code, pre, .font-mono {
 .cut-color-6 { background: linear-gradient(180deg, #4f46e5, #4338ca); border-bottom: 2px solid #312e81; }
 .cut-color-7 { background: linear-gradient(180deg, #0d9488, #0f766e); border-bottom: 2px solid #134e4a; }
 
-/* Print Mode Optimization */
+/* Engineering Blueprint Page Layout in Modal */
+.eng-page {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto 30px auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Print Mode Optimization (ISO Standards & Clean Vector Output) */
 @media print {
-  body {
-    background: #ffffff !important;
-    color: #000000 !important;
-    font-size: 11pt;
+  @page {
+    size: A4 portrait;
+    margin: 8mm;
   }
-  header, footer, .lg\:col-span-5, #btn-run-optimization, .btn-secondary, button {
+
+  html, body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 10pt !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Hide application UI elements */
+  header, footer, main, .no-print, button, .btn-secondary, #btn-run-optimization {
     display: none !important;
   }
-  main {
-    max-width: 100% !important;
+
+  #engineering-sheet-modal {
+    position: static !important;
+    background: #ffffff !important;
     padding: 0 !important;
     margin: 0 !important;
     display: block !important;
+    overflow: visible !important;
   }
-  .lg\:col-span-7, #results-section {
+
+  #engineering-sheet-document {
     display: block !important;
     width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
-  .bg-\[\#1a1613\], .bg-\[\#12100e\], .bg-stone-900, .timber-board-container {
-    background: #ffffff !important;
-    border: 1px solid #ccc !important;
+
+  .eng-page {
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    margin: 0 0 0 0 !important;
+    padding: 8mm !important;
+    border: 1.5pt solid #0f172a !important;
     box-shadow: none !important;
-    color: #000000 !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    width: 100% !important;
+    min-height: 278mm !important;
+    box-sizing: border-box !important;
   }
-  .text-white, .text-stone-200, .text-stone-300, .text-stone-400 {
-    color: #111111 !important;
+
+  .eng-page:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
   }
-  .timber-bar {
-    background: #f4f4f5 !important;
-    border: 1px solid #000 !important;
+
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+  }
+
+  th, td {
+    border: 0.75pt solid #475569 !important;
+    color: #0f172a !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  .timber-segment {
-    color: #000 !important;
-    text-shadow: none !important;
-    border-right: 1.5px solid #000 !important;
-    font-size: 9pt !important;
+
+  th {
+    background-color: #f1f5f9 !important;
+    font-weight: 700 !important;
+  }
+
+  .eng-title-block {
+    border: 1.5pt solid #0f172a !important;
+    background-color: #f8fafc !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  .cut-color-0, .cut-color-1, .cut-color-2, .cut-color-3, .cut-color-4, .cut-color-5, .cut-color-6, .cut-color-7 {
-    background: #e2e8f0 !important;
-    border-bottom: 1px solid #94a3b8 !important;
-  }
-  .timber-segment-waste {
-    background: #cbd5e1 !important;
+
+  svg {
+    max-width: 100% !important;
+    height: auto !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }
 

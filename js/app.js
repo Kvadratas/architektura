@@ -540,6 +540,7 @@ document.addEventListener("DOMContentLoaded", () => {
     state.dimensions3D.roofSpanM = widthM;
     state.dimensions3D.foundationType = foundationType;
     state.foundation.type = foundationType;
+    state.lastHouseConfig = houseConfig;
 
     renderPartsTable();
     renderStockLengths();
@@ -1384,12 +1385,29 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnPrint = document.getElementById("btn-print");
   if (btnPrint) {
     btnPrint.addEventListener("click", () => {
+      // Ensure latest calculation results
       if (!state.lastResults && btnRunOpt) {
         btnRunOpt.click();
       }
-      setTimeout(() => {
-        window.print();
-      }, 400);
+
+      const projectData = {
+        state,
+        dimensions3D: state.dimensions3D,
+        foundation: state.foundation,
+        foundationResult: state.foundation.lastCalculation,
+        fea: state.fea,
+        feaResult: state.fea.lastResult,
+        energy: state.energy,
+        energyResult: state.energy.lastResult,
+        splicing: state.splicing,
+        splicingResult: state.splicing.lastResult,
+        houseConfig: state.lastHouseConfig,
+        parts: state.parts,
+        results: state.lastResults,
+        settings: state.settings
+      };
+
+      Exporter.openEngineeringSheetModal(projectData);
     });
   }
 
