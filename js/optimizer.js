@@ -53,6 +53,8 @@ class TimberOptimizer {
       throw new Error("Nėra pasirinktų galimų pirkimo tašų ilgių!");
     }
 
+    const maxUsableStock = Math.max(...activeStock) - (this.trim * 2);
+
     // 1. Group demand parts strictly by Timber Profile (e.g., 50x200, 50x150)
     const profileGroups = {};
     parts.forEach((p, idx) => {
@@ -64,13 +66,34 @@ class TimberOptimizer {
       const len = Math.round(Number(p.length));
       if (len > 0) {
         for (let q = 0; q < qty; q++) {
-          profileGroups[prof].push({
-            id: p.id || `part-${idx}-${q}`,
-            label: p.label || `Detalė #${idx + 1}`,
-            length: len,
-            profile: prof,
-            itemIdx: idx
-          });
+          if (len > maxUsableStock) {
+            // Automatically split continuous elements longer than maximum stock board into constructible segments
+            let remainingLen = len;
+            let segIdx = 1;
+            const totalSegs = Math.ceil(len / maxUsableStock);
+            while (remainingLen > 0) {
+              const segLen = Math.min(remainingLen, maxUsableStock);
+              profileGroups[prof].push({
+                id: `${p.id || `part-${idx}-${q}`}-seg${segIdx}`,
+                label: `${p.label || `Detalė #${idx + 1}`} (Sudūrimas ${segIdx}/${totalSegs})`,
+                length: segLen,
+                profile: prof,
+                itemIdx: idx,
+                isSpliced: true,
+                originalLength: len
+              });
+              remainingLen -= segLen;
+              segIdx++;
+            }
+          } else {
+            profileGroups[prof].push({
+              id: p.id || `part-${idx}-${q}`,
+              label: p.label || `Detalė #${idx + 1}`,
+              length: len,
+              profile: prof,
+              itemIdx: idx
+            });
+          }
         }
       }
     });
@@ -91,13 +114,6 @@ class TimberOptimizer {
       
       // Sort items descending by length for optimal packing
       const sortedItems = [...items].sort((a, b) => b.length - a.length);
-
-      // Check if any single part exceeds the maximum available stock length after trim
-      const maxUsableStock = Math.max(...activeStock) - (this.trim * 2);
-      const tooLongItem = sortedItems.find(i => i.length > maxUsableStock);
-      if (tooLongItem) {
-        throw new Error(`Detalė "${tooLongItem.label}" (${tooLongItem.length} mm) viršija didžiausią galimą tašo ilgį su apipjovimu (${maxUsableStock} mm)!`);
-      }
 
       // Solve for this profile
       const packedBoards = this.solveProfilePacking(sortedItems, activeStock);

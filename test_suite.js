@@ -150,14 +150,16 @@ try {
 
   const testParts = [
     { id: "p1", label: "Gegnė 1", profile: "50x200", length: 4200, quantity: 4 },
-    { id: "p2", label: "Gegnė 2", profile: "50x200", length: 1700, quantity: 4 }
+    { id: "p2", label: "Gegnė 2", profile: "50x200", length: 1700, quantity: 4 },
+    { id: "p3-long", label: "Mūrlotas (Ilgis=15.00m)", profile: "100x150", length: 15000, quantity: 2 }
   ];
-  const stockLengths = [{ length: 6000, enabled: true }];
+  const stockLengths = [{ length: 6000, enabled: true }, { length: 5000, enabled: true }];
   const settings = { kerf: 4, trim: 15, pricePerM3: 280, density: 460, algorithm: "exact" };
 
   const optRes = TimberOptimizer.optimize(testParts, stockLengths, settings);
   assert(optRes.summary.totalBoards > 0, "Ruošinių kiekis optimizuotas");
   assert(optRes.summary.wastePercent >= 0, "Atraižų procentas apskaičiuotas");
+  assert(optRes.profiles["100x150"] && optRes.profiles["100x150"].totalBoards >= 6, "15m ilgio elementas sėkmingai išskaidytas į standartinius tašus be klaidų");
   console.log("");
 } catch (err) {
   assert(false, "TimberOptimizer", err.message);

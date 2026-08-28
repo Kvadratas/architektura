@@ -40,17 +40,38 @@ const HousePresets = {
       });
     }
 
-    // Murlots (Mūrlotai) - 2 sides along house length
+    // Murlots (Mūrlotai) - 2 sides along house length (segmented into standard <=6.0m stock lumber)
     if (includeMurlot) {
-      // Split into 4.0m or 6.0m segments or standard parts
       const murlotTotalLenMm = Math.round(lengthM * 1000);
-      // We add 2 lines of murlots (left & right wall)
-      parts.push({
-        label: `Mūrlotas (Ilgis=${(murlotTotalLenMm/1000).toFixed(2)}m)`,
-        profile: "100x150",
-        length: murlotTotalLenMm,
-        quantity: 2
-      });
+      const segLenMm = 6000;
+      if (murlotTotalLenMm <= segLenMm) {
+        parts.push({
+          label: `Mūrlotas (L=${(murlotTotalLenMm/1000).toFixed(2)}m)`,
+          profile: "100x150",
+          length: murlotTotalLenMm,
+          quantity: 2
+        });
+      } else {
+        const fullSegCount = Math.floor(murlotTotalLenMm / segLenMm);
+        const remainderMm = murlotTotalLenMm % segLenMm;
+
+        if (fullSegCount > 0) {
+          parts.push({
+            label: `Mūrlotas (Segmentas L=${(segLenMm/1000).toFixed(2)}m)`,
+            profile: "100x150",
+            length: segLenMm,
+            quantity: fullSegCount * 2
+          });
+        }
+        if (remainderMm > 0) {
+          parts.push({
+            label: `Mūrlotas (Pabaigos segmentas L=${(remainderMm/1000).toFixed(2)}m)`,
+            profile: "100x150",
+            length: remainderMm,
+            quantity: 2
+          });
+        }
+      }
     }
 
     return parts;
@@ -119,14 +140,36 @@ const HousePresets = {
       quantity: joistsCount
     });
 
-    // Rim joists (Apvadinės kraštinės sijos)
+    // Rim joists (Apvadinės kraštinės sijos) - segmented <= 6.0m
     const rimLenMm = Math.round(widthM * 1000);
-    parts.push({
-      label: `Apvadinė perdangos sija (Rim Joist)`,
-      profile: profile,
-      length: rimLenMm,
-      quantity: 2
-    });
+    const segLenMm = 6000;
+    if (rimLenMm <= segLenMm) {
+      parts.push({
+        label: `Apvadinė perdangos sija (Rim Joist L=${(rimLenMm/1000).toFixed(2)}m)`,
+        profile: profile,
+        length: rimLenMm,
+        quantity: 2
+      });
+    } else {
+      const fullCount = Math.floor(rimLenMm / segLenMm);
+      const remMm = rimLenMm % segLenMm;
+      if (fullCount > 0) {
+        parts.push({
+          label: `Apvadinė perdangos sija (Segmentas L=6.00m)`,
+          profile: profile,
+          length: segLenMm,
+          quantity: fullCount * 2
+        });
+      }
+      if (remMm > 0) {
+        parts.push({
+          label: `Apvadinė perdangos sija (Pabaigos segmentas L=${(remMm/1000).toFixed(2)}m)`,
+          profile: profile,
+          length: remMm,
+          quantity: 2
+        });
+      }
+    }
 
     return parts;
   },
@@ -148,12 +191,34 @@ const HousePresets = {
 
     // Perimeter boundary beams
     const rimLenMm = Math.round(widthM * 1000);
-    parts.push({
-      label: `Terasos apvadas (Kraštinė)`,
-      profile: profile,
-      length: rimLenMm,
-      quantity: 2
-    });
+    const segLenMm = 6000;
+    if (rimLenMm <= segLenMm) {
+      parts.push({
+        label: `Terasos apvadas (Kraštinė L=${(rimLenMm/1000).toFixed(2)}m)`,
+        profile: profile,
+        length: rimLenMm,
+        quantity: 2
+      });
+    } else {
+      const fullCount = Math.floor(rimLenMm / segLenMm);
+      const remMm = rimLenMm % segLenMm;
+      if (fullCount > 0) {
+        parts.push({
+          label: `Terasos apvadas (Segmentas L=6.00m)`,
+          profile: profile,
+          length: segLenMm,
+          quantity: fullCount * 2
+        });
+      }
+      if (remMm > 0) {
+        parts.push({
+          label: `Terasos apvadas (Pabaigos segmentas L=${(remMm/1000).toFixed(2)}m)`,
+          profile: profile,
+          length: remMm,
+          quantity: 2
+        });
+      }
+    }
 
     return parts;
   }
