@@ -220,3 +220,6 @@ class TimberVisualizer {
 if (typeof window !== "undefined") {
   window.TimberVisualizer = TimberVisualizer;
 }
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = TimberVisualizer;
+}

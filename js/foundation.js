@@ -412,3 +412,6 @@ class FoundationEngine {
 if (typeof window !== "undefined") {
   window.FoundationEngine = FoundationEngine;
 }
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = FoundationEngine;
+}

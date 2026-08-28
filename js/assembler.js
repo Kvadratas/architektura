@@ -868,3 +868,6 @@ class ConstructionAssembler {
 if (typeof window !== "undefined") {
   window.ConstructionAssembler = ConstructionAssembler;
 }
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = ConstructionAssembler;
+}

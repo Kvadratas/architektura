@@ -226,6 +226,41 @@ class StructuralFEAEngine {
     return "#ef4444";
   }
 
+  /**
+   * Universal FEA Calculation method (Eurocode 5)
+   */
+  calculate({
+    spanM = 4.0,
+    spacingM = 0.6,
+    pitchDeg = 30,
+    widthMm = 50,
+    heightMm = 200,
+    timberClass = "C24",
+    snowLoadKNm2 = 1.6,
+    deadLoadKNm2 = 0.65,
+    windLoadKNm2 = 0.35
+  } = {}) {
+    const res = this.analyzeRafter({
+      spanM,
+      spacingM,
+      pitchDeg,
+      widthMm,
+      heightMm,
+      timberClass,
+      snowLoadKNm2,
+      deadLoadKNm2,
+      windLoadKNm2
+    });
+
+    return {
+      ...res,
+      momentMedKNm: parseFloat(res.M_Ed_kNm),
+      sigmaMdMPa: parseFloat(res.sigma_m_MPa),
+      wFinMm: parseFloat(res.w_fin_mm),
+      statusText: res.recommendation
+    };
+  }
+
   getRecommendation(utilizationPct, b, h, spanM) {
     if (utilizationPct > 125) {
       return `🛑 KRITINĖ PERKROVA (${utilizationPct.toFixed(0)}%)! Konstrukcija neišlaikys sniego/svorio apkrovų pagal Eurokodą 5. Būtina didinti aukštį į bent ${b}x${h + 50} mm arba montuoti tarpinę atraminę sieną / kraigo siją.`;
@@ -241,4 +276,7 @@ class StructuralFEAEngine {
 
 if (typeof window !== "undefined") {
   window.StructuralFEAEngine = StructuralFEAEngine;
+}
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = StructuralFEAEngine;
 }

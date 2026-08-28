@@ -1001,3 +1001,6 @@ const Exporter = {
 if (typeof window !== "undefined") {
   window.Exporter = Exporter;
 }
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = Exporter;
+}

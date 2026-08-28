@@ -8,9 +8,9 @@ class EnergyEnvelopeEngine {
   constructor() {
     // Thermal conductivity lambda (W/m*K) & vapor diffusion resistance factor mu (µ)
     this.materials = {
-      mineral_wool: { name: "Mineralinė vata (Knauf/Paroc/Rockwool)", lambda: 0.035, mu: 1.2, color: "#eab308" },
+      mineral_wool: { name: "Mineralinė vata (Knauf/Paroc/Rockwool)", lambda: 0.034, mu: 1.2, color: "#eab308" },
       pir_board: { name: "PIR šiltinimo plokštė (su aliuminiu)", lambda: 0.022, mu: 100, color: "#f97316" },
-      wood_fiber: { name: "Medžio plaušo vata (Steico Flex)", lambda: 0.038, mu: 3.0, color: "#d97706" },
+      wood_fiber: { name: "Medžio plaušo vata (Steico Flex)", lambda: 0.036, mu: 3.0, color: "#d97706" },
       eps_100: { name: "Neoporas / EPS 100", lambda: 0.031, mu: 40, color: "#71717a" },
       xps_300: { name: "Ekstruzinis polistirenas (XPS)", lambda: 0.034, mu: 100, color: "#38bdf8" },
       timber_c24: { name: "Konstrukcinė mediena C24", lambda: 0.130, mu: 50, color: "#c5824c" },
@@ -49,19 +49,20 @@ class EnergyEnvelopeEngine {
   }) {
     const mat = this.materials[insulationType] || this.materials.mineral_wool;
 
-    // 1. ROOF U-VALUE & R-VALUE
+    // 1. ROOF U-VALUE & R-VALUE (350 mm multi-layer with cross-battening)
     const d_roof_m = roofInsulationMm / 1000;
     const R_ins_roof = d_roof_m / mat.lambda;
-    // Internal gypsum (0.0125/0.25) + main insulation + exterior wind barrier + timber framing fraction (8%)
-    const framingEffect = 1.08; // Wood thermal bridge factor for rafters
-    const R_total_roof = (this.Rsi_roof + R_ins_roof + 0.05 + this.Rse_roof) / framingEffect;
+    // Cross-battened timber framing factor (~3% point bridge impact) + drywall + wind barrier board
+    const framingEffect = 1.03;
+    const R_total_roof = (this.Rsi_roof + R_ins_roof + 0.12 + this.Rse_roof) / framingEffect;
     const U_roof = 1 / R_total_roof;
     const roofPassAplusplus = U_roof <= this.targetAplusplus.roof_U;
 
-    // 2. WALL U-VALUE & R-VALUE
+    // 2. WALL U-VALUE & R-VALUE (250 mm main framing + exterior wind barrier board 50mm + gypsum)
     const d_wall_m = wallInsulationMm / 1000;
     const R_ins_wall = d_wall_m / mat.lambda;
-    const R_total_wall = (this.Rsi_wall + R_ins_wall + 0.08 + this.Rse_wall) / framingEffect;
+    const R_barrier_board = 1.25; // 50mm exterior Steico/Paroc windproof board
+    const R_total_wall = (this.Rsi_wall + R_ins_wall + R_barrier_board + 0.06 + this.Rse_wall) / framingEffect;
     const U_wall = 1 / R_total_wall;
     const wallPassAplusplus = U_wall <= this.targetAplusplus.wall_U;
 
@@ -270,8 +271,29 @@ class EnergyEnvelopeEngine {
       </svg>
     `;
   }
+
+  /**
+   * Universal Calculate method (STR 2.01.02:2016 A++)
+   */
+  calculate(params = {}) {
+    const res = this.calculateEnvelope(params);
+    return {
+      ...res,
+      roofU: parseFloat(res.roof.U_val),
+      wallU: parseFloat(res.wall.U_val),
+      isPassA2: res.roof.isAplusplus && res.wall.isAplusplus
+    };
+  }
+
+  generateGlaserChartSVG(resOrGlasser, width = 540, height = 220) {
+    const glasser = (resOrGlasser && resOrGlasser.glasser) ? resOrGlasser.glasser : resOrGlasser;
+    return this.renderGlaserChartSVG(glasser, width, height);
+  }
 }
 
 if (typeof window !== "undefined") {
   window.EnergyEnvelopeEngine = EnergyEnvelopeEngine;
+}
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = EnergyEnvelopeEngine;
 }

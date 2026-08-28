@@ -150,3 +150,6 @@ END-ISO-10303-21;
 if (typeof window !== "undefined") {
   window.BimCncExporter = BimCncExporter;
 }
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = BimCncExporter;
+}

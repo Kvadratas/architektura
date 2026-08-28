@@ -160,7 +160,8 @@ class FullHouseMasterEngine {
       },
       rooms,
       masterBOM,
-      constructionGuide15Steps
+      constructionGuide15Steps,
+      stepsGuide: constructionGuide15Steps
     };
   }
 
@@ -673,4 +674,7 @@ class FullHouseMasterEngine {
 
 if (typeof window !== "undefined") {
   window.FullHouseMasterEngine = FullHouseMasterEngine;
+}
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = FullHouseMasterEngine;
 }

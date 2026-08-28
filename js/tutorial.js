@@ -399,3 +399,6 @@ const ConstructionTutorial = {
 if (typeof window !== "undefined") {
   window.ConstructionTutorial = ConstructionTutorial;
 }
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = ConstructionTutorial;
+}

@@ -179,8 +179,27 @@ class TimberSplicingEngine {
       </div>
     `;
   }
+
+  /**
+   * Universal Calculate method for Timber Splicing
+   */
+  calculate({ rafterLengthM = 7.5, jointType = "steel_plates", profile = "50x200" } = {}) {
+    const lengthMm = Math.round(rafterLengthM * 1000);
+    const parts = [{ id: "splice-eval-1", label: "Gegnė", profile, length: lengthMm, quantity: 1 }];
+    const res = this.processParts(parts, jointType, this.maxStandardLengthMm);
+    const spliced = res.hardware.splicedElements[0];
+    return {
+      needsSplicing: lengthMm > this.maxStandardLengthMm,
+      spliceLocationM: spliced ? spliced.segmentA_Mm / 1000 : 0,
+      hardware: res.hardware,
+      optimizedParts: res.optimizedParts
+    };
+  }
 }
 
 if (typeof window !== "undefined") {
   window.TimberSplicingEngine = TimberSplicingEngine;
+}
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = TimberSplicingEngine;
 }

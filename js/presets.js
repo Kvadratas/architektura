@@ -161,4 +161,8 @@ const HousePresets = {
 
 if (typeof window !== "undefined") {
   window.HousePresets = HousePresets;
+  window.TimberPresets = HousePresets;
+}
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { HousePresets, TimberPresets: HousePresets };
 }

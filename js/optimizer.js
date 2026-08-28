@@ -23,9 +23,19 @@ class TimberOptimizer {
     return {
       width: w,
       height: h,
+      widthMm: w,
+      heightMm: h,
       areaM2: (w * h) / 1000000,
       label: `${w}x${h}`
     };
+  }
+
+  /**
+   * Static optimization helper
+   */
+  static optimize(parts, stockLengths, settings = {}) {
+    const opt = new TimberOptimizer(settings);
+    return opt.optimize(parts, stockLengths);
   }
 
   /**
@@ -406,4 +416,7 @@ class TimberOptimizer {
 // Attach to window object
 if (typeof window !== "undefined") {
   window.TimberOptimizer = TimberOptimizer;
+}
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = TimberOptimizer;
 }

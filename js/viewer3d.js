@@ -1027,3 +1027,6 @@ class Timber3DViewer {
 if (typeof window !== "undefined") {
   window.Timber3DViewer = Timber3DViewer;
 }
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = Timber3DViewer;
+}
